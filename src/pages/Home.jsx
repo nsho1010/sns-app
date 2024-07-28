@@ -4,11 +4,15 @@ import { Navigate } from "react-router-dom";
 import { SideMenu } from "../components/SideMenu";
 import { postRepository } from "../repositories/post";
 import Post from "../components/Post";
+import Pagination from "../components/Pagination";
+
+const limit = 5;
 
 const Home = () => {
     const [content, setContent] = useState("");
     const { currentUser } = useContext(SessionContext);
     const [posts, setPosts] = useState([]);
+    const [page, setPage] = useState(1);
 
     useEffect(() => {
         fetchPost();
@@ -28,9 +32,21 @@ const Home = () => {
 
     //post.jsのfund()メソッドを呼び出し、データを取得する。
     //取得したデータをpost変数へ格納し、posts stateへ格納する。
-    const fetchPost = async () => {
-        const post = await postRepository.find();
+    const fetchPost = async (page) => {
+        const post = await postRepository.find(page, limit);
         setPosts(post);
+    };
+
+    const moveToNext = async () => {
+        const nextPage = page + 1;
+        await fetchPost(nextPage);
+        setPage(nextPage);
+    };
+
+    const moveToPrev = async () => {
+        const prevPage = page - 1;
+        await fetchPost(prevPage);
+        setPage(prevPage);
     };
 
     console.log(posts);
@@ -68,6 +84,10 @@ const Home = () => {
                                 <Post key={post.id} post={post} />
                             ))}
                         </div>
+                        <Pagination
+                            onPrev={page > 1 ? moveToPrev : null}
+                            onNext={posts.length >= limit ? moveToNext : null}
+                        />
                     </div>
                     <SideMenu />
                 </div>
