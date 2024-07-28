@@ -32,7 +32,7 @@ export const authRepository = {
         if (error != null) throw new Error(error.message);
         if (data.session == null) return;
         return {
-            ...data.user,
+            ...data.session.user,
             userName: data.session.user.user_metadata.name,
         };
     },

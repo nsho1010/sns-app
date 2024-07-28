@@ -3,7 +3,6 @@ import { SessionContext } from "../SessionProvider";
 
 export function SideMenu() {
     const { currentUser } = useContext(SessionContext);
-    console.log(currentUser);
 
     return (
         <div className="bg-white p-4 rounded-lg shadow-md h-[200px] flex flex-col justify-center">
