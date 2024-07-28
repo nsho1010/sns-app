@@ -1,18 +1,20 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useContext, useState } from "react";
+import { Link, Navigate } from "react-router-dom";
 import { authRepository } from "../repositories/auth";
+import { SessionContext } from "../SessionProvider";
 
 const Signin = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-
-    console.log(email);
-    console.log(password);
+    const { currentUser, setCurrentUser } = useContext(SessionContext);
 
     const signin = async () => {
         const user = await authRepository.signin(email, password);
-        console.log(user);
+        setCurrentUser(user);
     };
+
+    // ログインしていれば"/"へ遷移する
+    if (currentUser != null) return <Navigate replace to="/" />;
 
     return (
         <div className="min-h-screen bg-gray-100 py-10 px-4 sm:px-6 lg:px-8">
