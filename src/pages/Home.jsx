@@ -1,22 +1,39 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { SessionContext } from "../SessionProvider";
 import { Navigate } from "react-router-dom";
 import { SideMenu } from "../components/SideMenu";
 import { postRepository } from "../repositories/post";
+import Post from "../components/Post";
 
 const Home = () => {
     const [content, setContent] = useState("");
     const { currentUser } = useContext(SessionContext);
-    console.log(currentUser);
+    const [posts, setPosts] = useState([]);
+
+    useEffect(() => {
+        fetchPost();
+    }, []);
+
     // ログインしていなければログインページに遷移させる
     if (currentUser == null) return <Navigate replace to="/signin" />;
 
     const createPost = async () => {
-        console.log(currentUser.id);
         const post = await postRepository.create(content, currentUser.id);
-        console.log(post);
+        setPosts([
+            { ...post, userId: currentUser.id, userName: currentUser.userName },
+            ...posts,
+        ]);
         setContent("");
     };
+
+    //post.jsのfund()メソッドを呼び出し、データを取得する。
+    //取得したデータをpost変数へ格納し、posts stateへ格納する。
+    const fetchPost = async () => {
+        const post = await postRepository.find();
+        setPosts(post);
+    };
+
+    console.log(posts);
 
     return (
         <div className="min-h-screen bg-gray-100">
@@ -46,7 +63,11 @@ const Home = () => {
                                 Post
                             </button>
                         </div>
-                        <div className="mt-4"></div>
+                        <div className="mt-4">
+                            {posts.map((post) => (
+                                <Post key={post.id} post={post} />
+                            ))}
+                        </div>
                     </div>
                     <SideMenu />
                 </div>
