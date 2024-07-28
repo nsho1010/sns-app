@@ -5,14 +5,22 @@ import { SideMenu } from "../components/SideMenu";
 import { postRepository } from "../repositories/post";
 import Post from "../components/Post";
 import Pagination from "../components/Pagination";
+import { authRepository } from "../repositories/auth";
 
 const limit = 5;
 
 const Home = () => {
     const [content, setContent] = useState("");
-    const { currentUser } = useContext(SessionContext);
+    const { currentUser, setCurrentUser } = useContext(SessionContext);
     const [posts, setPosts] = useState([]);
     const [page, setPage] = useState(1);
+
+    //post.jsのfund()メソッドを呼び出し、データを取得する。
+    //取得したデータをpost変数へ格納し、posts stateへ格納する。
+    const fetchPost = async (page) => {
+        const post = await postRepository.find(page, limit);
+        setPosts(post);
+    };
 
     useEffect(() => {
         fetchPost();
@@ -28,13 +36,6 @@ const Home = () => {
             ...posts,
         ]);
         setContent("");
-    };
-
-    //post.jsのfund()メソッドを呼び出し、データを取得する。
-    //取得したデータをpost変数へ格納し、posts stateへ格納する。
-    const fetchPost = async (page) => {
-        const post = await postRepository.find(page, limit);
-        setPosts(post);
     };
 
     const moveToNext = async () => {
@@ -54,6 +55,11 @@ const Home = () => {
         setPosts(posts.filter((post) => post.id != postId));
     };
 
+    const signout = async () => {
+        await authRepository.signout();
+        setCurrentUser(null);
+    };
+
     console.log(posts);
 
     return (
@@ -61,7 +67,10 @@ const Home = () => {
             <header className="bg-[#34D399] p-4">
                 <div className="container mx-auto flex items-center justify-between">
                     <h1 className="text-3xl font-bold text-white">SNS APP</h1>
-                    <button className="text-white hover:text-red-600">
+                    <button
+                        onClick={signout}
+                        className="text-white hover:text-red-600"
+                    >
                         ログアウト
                     </button>
                 </div>
